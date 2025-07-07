@@ -3,6 +3,7 @@ import sequelize from './db.js'
 import Manager from './manager.js'
 import cors from 'cors'
 import Department from './department.js'
+import Employee from './employee.js'
 async function testConnection() {
   try {
     await sequelize.authenticate()
@@ -17,8 +18,8 @@ const app = express()
 
 app.use(cors())
 app.use(express.json());
-app.get('/api/managers',async(req,res)=>{
-    try {
+app.get('/api/managers', async (req, res) => {
+  try {
     const managers = await Manager.findAll()
     res.json(managers)
   } catch (err) {
@@ -26,7 +27,7 @@ app.get('/api/managers',async(req,res)=>{
     res.status(500).json({ error: "Internal server error" })
   }
 })
-Department.belongsTo(Manager, { foreignKey: 'manager_id' });
+Department.belongsTo(Manager, { foreignKey: 'manager_id', as: 'manager' });
 Manager.hasMany(Department, { foreignKey: "manager_id" });
 
 app.get('/api/getDepartments', async (req, res) => {
@@ -34,17 +35,17 @@ app.get('/api/getDepartments', async (req, res) => {
     const departments = await Department.findAll({
       include: {
         model: Manager,
-        attributes: ['name'], // only get manager name
+        as: 'manager', // alias used
+        attributes: ['name'],
       },
     });
 
-    // Optional: Format output (flatten the manager name)
     const formatted = departments.map(dept => ({
       id: dept.id,
       name: dept.name,
       description: dept.description,
       manager_id: dept.manager_id,
-      manager_name: dept.Manager?.name || "",
+      manager_name: dept.manager?.name || "", 
     }));
 
     res.json(formatted);
@@ -54,6 +55,97 @@ app.get('/api/getDepartments', async (req, res) => {
   }
 });
 
+
+Employee.belongsTo(Department, { foreignKey: 'department_id' })
+
+app.get('/api/getEmployees', async (req, res) => {
+  try {
+    const employees = await Employee.findAll({
+      include: {
+        model: Department,
+        attributes: ['name'],
+        include: {
+          model: Manager,
+          as: 'manager',
+          attributes: ['id', 'name', 'email']
+        }
+      }
+    });
+
+    const formattedEmployees = employees.map(emp => ({
+      id: emp.id,
+      name: emp.name,
+      email: emp.email,
+      role: emp.role,
+      department_id: emp.department_id ?? null,
+      department_name: emp.Department?.name ?? null,
+      manager_name: emp.Department?.manager?.name ?? null,
+      manager_email: emp.Department?.manager?.email ?? null,
+    }));
+    res.status(200).json(formattedEmployees);
+  } catch (error) {
+    console.error("Failed to fetch employees:", error);
+    res.status(500).json({ error: "Failed to fetch employees" });
+  }
+});
+
+app.get("/api/getManagers", async (req, res) => {
+  const departmentWithManagers = await Department.findAll({
+    include: {
+      model: Manager,
+      as: 'manager',
+      attributes: ['id', 'name', 'email'],
+    },
+  });
+  const uniqueManagers = new Map();
+  departmentWithManagers.forEach(dept => {
+    const mgr = dept.manager;
+    if (mgr && !uniqueManagers.has(mgr.email)) {
+      uniqueManagers.set(mgr.email, {
+        id: mgr.id,
+        name: mgr.name,
+        email: mgr.email,
+        isManager: true,
+      });
+    }
+  });
+
+  const formattedManagers = Array.from(uniqueManagers.values());
+
+  res.status(200).json(formattedManagers);
+});
+
+
+app.post("/api/saveEmployee", async (req, res) => {
+  const form = req.body
+  const { name, email, department_id, role } = form
+  try {
+    if (role === null) {
+      //Manager
+      const newManager = await Manager.create(
+        {
+          name,
+          email,
+          department_id
+        }
+      )
+      res.status(201).send(newManager)
+
+    }
+    else {
+      //Employee
+      const newEmployee = await Employee.create(
+        {
+          name, email, department_id, role
+        }
+      )
+      res.status(201).send(newEmployee)
+    }
+  } catch (error) {
+    res.status(400).send({ message: "Failed to create new employee or manager" })
+  }
+  console.log(form)
+})
 app.post("/api/saveDepartment", async (req, res) => {
   const { name, description, manager_id } = req.body;
 

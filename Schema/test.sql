@@ -1,14 +1,13 @@
 -- phpMyAdmin SQL Dump
--- version 5.0.1
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 07, 2025 at 01:39 PM
--- Server version: 10.4.11-MariaDB
--- PHP Version: 7.4.2
+-- Generation Time: Jul 07, 2025 at 09:47 PM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET AUTOCOMMIT = 0;
 START TRANSACTION;
 SET time_zone = "+00:00";
 
@@ -33,7 +32,7 @@ CREATE TABLE `departments` (
   `name` varchar(100) NOT NULL,
   `description` text DEFAULT NULL,
   `manager_id` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Dumping data for table `departments`
@@ -44,10 +43,7 @@ INSERT INTO `departments` (`id`, `name`, `description`, `manager_id`) VALUES
 (2, 'Human Resources', 'Manages hiring, onboarding, and policies.', 2),
 (3, 'Engineering', 'Responsible for product development.', 1),
 (4, 'Computer Science', 'Responsible for software development.', 2),
-(6, 'CS', 'Hello World', 2),
-(7, 'HR', 'hello hi 240', 3),
-(8, 'HR', 'dad', 3),
-(9, 'Engineering', 'Engineering department works on engineering ', 3);
+(6, 'CS', 'Hello World', 2);
 
 -- --------------------------------------------------------
 
@@ -59,19 +55,20 @@ CREATE TABLE `employees` (
   `id` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
   `email` varchar(100) DEFAULT NULL,
-  `department_id` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  `department_id` int(11) DEFAULT NULL,
+  `role` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Dumping data for table `employees`
 --
 
-INSERT INTO `employees` (`id`, `name`, `email`, `department_id`) VALUES
-(1, 'Emily Carter', 'emily@example.com', 1),
-(2, 'David Lee', 'david@example.com', 1),
-(3, 'Sarah Kim', 'sarah@example.com', 2),
-(4, 'Michael Brown', 'michael@example.com', 3),
-(5, 'Laura Wilson', 'laura@example.com', 3);
+INSERT INTO `employees` (`id`, `name`, `email`, `department_id`, `role`) VALUES
+(1, 'Emily Carter', 'emily@example.com', 1, '.NET Developer'),
+(2, 'David Lee', 'david@example.com', 1, 'React Developer'),
+(3, 'Sarah Kim', 'sarah@example.com', 2, 'Backend Developer'),
+(4, 'Michael Brown', 'michael@example.com', 3, 'Marketing Head'),
+(6, 'Lionel Messi', 'messi@gmail.com', 2, 'I am the GOAT');
 
 -- --------------------------------------------------------
 
@@ -83,7 +80,7 @@ CREATE TABLE `managers` (
   `id` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
   `email` varchar(100) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Dumping data for table `managers`
@@ -92,7 +89,8 @@ CREATE TABLE `managers` (
 INSERT INTO `managers` (`id`, `name`, `email`) VALUES
 (1, 'Alice Johnson', 'alice@example.com'),
 (2, 'Bob Smith', 'bob@example.com'),
-(3, 'Charlie Davis', 'charlie@example.com');
+(3, 'Charlie Davis', 'charlie@example.com'),
+(4, 'John Doe', 'john@example.com');
 
 --
 -- Indexes for dumped tables
@@ -134,13 +132,13 @@ ALTER TABLE `departments`
 -- AUTO_INCREMENT for table `employees`
 --
 ALTER TABLE `employees`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `managers`
 --
 ALTER TABLE `managers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Constraints for dumped tables

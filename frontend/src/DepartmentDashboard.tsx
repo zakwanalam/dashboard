@@ -28,6 +28,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import axios from "axios"
+import { Plus, PlusCircle, PlusIcon, Trash } from "lucide-react"
 
 type Manager = {
     id: number
@@ -54,7 +55,6 @@ export default function DepartmentDashboard() {
         manager_name: "",
     })
 
-    // Fetch Departments
     useEffect(() => {
         const getDepartments = async () => {
             const response = await axios.get("http://localhost:3000/api/getDepartments")
@@ -63,7 +63,6 @@ export default function DepartmentDashboard() {
         getDepartments()
     }, [])
 
-    // Fetch Managers
     useEffect(() => {
         const getManagers = async () => {
             const response = await axios.get("http://localhost:3000/api/managers")
@@ -72,7 +71,6 @@ export default function DepartmentDashboard() {
         getManagers()
     }, [])
 
-    // Submit form
     const handleSubmit = async () => {
         const newId = departments.length + 1
         const manager = managers.find((m) => m.id === Number(form.manager_id))
@@ -100,10 +98,13 @@ export default function DepartmentDashboard() {
     return (
         <div className="w-6xl mx-auto px-6 py-10">
             <div className="flex items-center justify-between mb-8">
-                <h1 className="text-3xl font-bold tracking-tight">Department Dashboard</h1>
+                <h1 className="text-3xl font-bold text-gray-800 tracking-tight">Department Dashboard</h1>
                 <Dialog open={open} onOpenChange={setOpen}>
                     <DialogTrigger asChild>
-                        <Button className="bg-black text-white  hover:bg-gray-800">Add Department</Button>
+                        <Button className="bg-gray-800 text-white hover:bg-gray-900 flex items-center gap-2">
+                            <Plus className="w-4 h-4" />
+                            <span>Add Department</span>
+                        </Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-[500px]">
                         <DialogHeader>
@@ -181,23 +182,39 @@ export default function DepartmentDashboard() {
                 </Dialog>
             </div>
 
-            <div className="rounded-lg border shadow-sm">
-                <Table>
+            <div className="rounded-xl border shadow-md overflow-hidden">
+                <Table className="w-full text-sm">
                     <TableHeader>
-                        <TableRow className="bg-gray-100">
-                            <TableHead className="text-center">ID</TableHead>
-                            <TableHead className="text-center">Name</TableHead>
-                            <TableHead className="text-center">Description</TableHead>
-                            <TableHead className="text-center">Manager</TableHead>
+                        <TableRow className="bg-gray-800 hover:bg-gray-800 text-white">
+                            <TableHead className="text-center py-4 px-6 text-white">ID</TableHead>
+                            <TableHead className="text-center py-4 px-6 text-white">Name</TableHead>
+                            <TableHead className="text-center py-4 px-6 text-white">Description</TableHead>
+                            <TableHead className="text-center py-4 px-6 text-white">Manager</TableHead>
+                            <TableHead className="text-center py-4 px-6 text-white">Delete</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {departments.map((dept) => (
-                            <TableRow key={dept.id} className="text-center">
-                                <TableCell>{dept.id}</TableCell>
-                                <TableCell className="font-medium">{dept.name}</TableCell>
-                                <TableCell>{dept.description}</TableCell>
-                                <TableCell>{dept.manager_name}</TableCell>
+                        {departments.map((dept, index) => (
+                            <TableRow
+                                key={dept.id}
+                                className={`text-center ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-gray-100 transition`}
+                            >
+                                <TableCell className="py-4 px-6">{dept.id}</TableCell>
+                                <TableCell className="py-4 px-6 font-bold">{dept.name}</TableCell>
+                                <TableCell className="py-4 px-6">{dept.description || '-'}</TableCell>
+                                <TableCell className="py-4 px-6">
+                                    {dept.manager_name ? (
+                                        <span className="inline-block px-3 py-1 text-xs font-semibold text-white bg-green-600 rounded-full">
+                                            {dept.manager_name}
+                                        </span>
+                                    ) : (
+                                        <span className="text-gray-400 italic">No Manager</span>
+                                    )}
+                                </TableCell>
+                                <TableCell className="flex  justify-center pt-3 items-center">
+                                    <Trash className="h-5 w-5 text-red-600 hover:text-red-800 cursor-pointer" />
+                                </TableCell>
+
                             </TableRow>
                         ))}
                     </TableBody>
